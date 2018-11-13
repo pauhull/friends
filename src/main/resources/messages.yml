@@ -1,0 +1,12 @@
+Messages:
+  Prefix: "&3Freunde &8» &7"
+  RequestReceived: "&fDu hast eine Freundschaftsanfrage von &l%s&r&f erhalten! "
+  RequestSent: "&aDu hast %s eine Freundschaftsanfrage geschickt."
+  YouAccepted: "&aDu bist nun mit %s befreundet"
+  YouDenied: "&cDu hast die Freundschaftsanfrage von %s abgelehnt"
+  RequestAccepted: "&a%s hat deine Freundschaftsanfrage angenommen!"
+  RequestDenied: "&c%s hat deine Freundschaftsanfrage abgelehnt."
+  AlreadyRequested: "&cDu hast %s bereits eine Freundschaftsanfrage geschickt."
+  OnlyPlayers: "&cNur Spieler können diesen Befehl benutzen."
+  PlayerDoesntExist: "&cDieser Spieler existiert nicht! Hast du auf die Groß-/Kleinschreibung geachtet?"
+  NotSelf: "&cDu kannst dir selbst keine Freundschaftsanfrage senden!"
