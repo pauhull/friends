@@ -6,10 +6,10 @@ import net.md_5.bungee.api.CommandSender;
 public abstract class SubCommand {
 
     @Getter
-    protected String name;
+    protected String[] names;
 
-    public SubCommand(String name) {
-        this.name = name;
+    public SubCommand(String... names) {
+        this.names = names;
     }
 
     public abstract void execute(CommandSender sender, String[] args);

@@ -48,7 +48,28 @@ public class FriendRequestTable {
     }
 
     public void acceptFriendRequest(UUID from, UUID to) {
-        // TODO
+        executorService.execute(() -> {
+            try {
+
+                database.updateSQL(String.format("DELETE FROM `%s` WHERE `from`='%s' AND `to`='%s'", table, from.toString(), to.toString()));
+                Friends.getInstance().getFriendTable().addFriends(from, to);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void denyFriendRequest(UUID from, UUID to) {
+        executorService.execute(() -> {
+            try {
+
+                database.updateSQL(String.format("DELETE FROM `%s` WHERE `from`='%s' AND `to`='%s'", table, from.toString(), to.toString()));
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void getOpenFriendRequests(UUID to, Consumer<Integer> consumer) {

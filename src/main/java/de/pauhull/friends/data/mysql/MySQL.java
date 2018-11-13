@@ -26,7 +26,7 @@ public class MySQL extends Database {
         if (isConnected())
             return connection;
 
-        String url = "jdbc:mysql://%s:%s/%s";
+        String url = "jdbc:mysql://%s:%s/%s?autoReconnect=true";
         url = String.format(url, host, port, database);
         System.out.println(url);
         connection = DriverManager.getConnection(url, this.user, this.password);

@@ -2,6 +2,7 @@ package de.pauhull.friends;
 
 import de.pauhull.friends.command.FriendCommand;
 import de.pauhull.friends.data.FriendRequestTable;
+import de.pauhull.friends.data.FriendTable;
 import de.pauhull.friends.data.mysql.Database;
 import de.pauhull.friends.data.mysql.MySQL;
 import de.pauhull.friends.listener.PostLoginListener;
@@ -22,6 +23,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Friends extends Plugin {
+
+    //TODO no self request
+    //TODO no request if already friends
+    //TODO permissions
+    //TODO reload
 
     @Getter
     private static Friends instance;
@@ -59,6 +65,9 @@ public class Friends extends Plugin {
     @Getter
     private FriendRequestTable friendRequestTable;
 
+    @Getter
+    private FriendTable friendTable;
+
     @Override
     public void onEnable() {
         instance = this;
@@ -86,6 +95,7 @@ public class Friends extends Plugin {
         }
 
         this.friendRequestTable = new FriendRequestTable(database, executorService);
+        this.friendTable = new FriendTable(database, executorService);
 
         FriendCommand.register();
         PostLoginListener.register();

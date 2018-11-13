@@ -1,6 +1,7 @@
 package de.pauhull.friends.command;
 
 import de.pauhull.friends.Friends;
+import de.pauhull.friends.command.subcommand.AcceptDenySubCommand;
 import de.pauhull.friends.command.subcommand.AddSubCommand;
 import de.pauhull.friends.command.subcommand.RemoveSubCommand;
 import de.pauhull.friends.command.subcommand.SubCommand;
@@ -20,6 +21,7 @@ public class FriendCommand extends Command {
     static {
         subCommands.add(new AddSubCommand());
         subCommands.add(new RemoveSubCommand());
+        subCommands.add(new AcceptDenySubCommand());
     }
 
     public FriendCommand() {
@@ -35,10 +37,12 @@ public class FriendCommand extends Command {
 
         if (args.length > 0) {
             for (SubCommand command : subCommands) {
-                if (!args[0].equalsIgnoreCase(command.getName()))
-                    continue;
-
-                command.execute(sender, args);
+                for (String name : command.getNames()) {
+                    if (name.equalsIgnoreCase(args[0])) {
+                        command.execute(sender, args);
+                        return;
+                    }
+                }
             }
         }
 
