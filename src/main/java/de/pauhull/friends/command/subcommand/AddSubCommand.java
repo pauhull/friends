@@ -36,30 +36,32 @@ public class AddSubCommand extends SubCommand {
                 requester.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getPlayerDoesntExist()));
             } else {
                 friends.getFriendRequestTable().getTime(requester.getUniqueId(), requestedUUID, timeStamp -> {
+                    friends.getUuidFetcher().fetchNameAsync(requestedUUID, name -> {
 
-                    if (timeStamp != null) {
-                        requester.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getAlreadyRequested(), requestedPlayerName)));
-                    } else {
-                        friends.getFriendRequestTable().sendFriendRequest(requester.getUniqueId(), requestedUUID);
-                        requester.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getRequestSent()));
+                        if (timeStamp != null) {
+                            requester.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getAlreadyRequested(), name)));
+                        } else {
+                            friends.getFriendRequestTable().sendFriendRequest(requester.getUniqueId(), requestedUUID);
+                            requester.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getRequestSent(), name)));
 
-                        ProxiedPlayer requested = ProxyServer.getInstance().getPlayer(requestedPlayerName);
-                        if (requested != null) {
-                            requested.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() +
-                                    String.format(friends.getMessages().getRequestReceived(), requester.getName())));
+                            ProxiedPlayer requested = ProxyServer.getInstance().getPlayer(name);
+                            if (requested != null) {
+                                requested.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() +
+                                        String.format(friends.getMessages().getRequestReceived(), requester.getName())));
 
-                            HoverEvent acceptHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§aAnfrage annehmen"));
-                            HoverEvent denyHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§cAnfrage ablehnen"));
-                            ClickEvent acceptClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend accept " + requester.getName());
-                            ClickEvent denyClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend deny " + requester.getName());
+                                HoverEvent acceptHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§aAnfrage annehmen"));
+                                HoverEvent denyHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§cAnfrage ablehnen"));
+                                ClickEvent acceptClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend accept " + requester.getName());
+                                ClickEvent denyClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend deny " + requester.getName());
 
-                            BaseComponent[] message = new ComponentBuilder(Friends.getPrefix()).append("§8[").append("§a§lAnnehmen").event(acceptHover).event(acceptClick)
-                                    .append("§8/").append("§c§lAblehnen").event(denyHover).event(denyClick).append("§8]").create();
+                                BaseComponent[] message = new ComponentBuilder(Friends.getPrefix()).append("§8[").append("§a§lAnnehmen").event(acceptHover).event(acceptClick)
+                                        .append("§8/").append("§c§lAblehnen").event(denyHover).event(denyClick).append("§8]").create();
 
-                            requester.sendMessage(message);
+                                requester.sendMessage(message);
+                            }
                         }
-                    }
 
+                    });
                 });
             }
 

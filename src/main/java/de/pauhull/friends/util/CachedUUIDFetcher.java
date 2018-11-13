@@ -72,8 +72,7 @@ public class CachedUUIDFetcher {
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
-                if (connection.getResponseCode() == 400) {
-                    ProxyServer.getInstance().getLogger().severe("There is no player with the name \"" + playerName + "\"!");
+                if (connection.getResponseCode() != 200) {
                     consumer.accept(null);
                     return;
                 }
@@ -85,13 +84,14 @@ public class CachedUUIDFetcher {
                 JsonElement element = new JsonParser().parse(bufferedReader);
                 JsonObject object = element.getAsJsonObject();
                 String uuidAsString = object.get("id").getAsString();
+                String retrievedName = object.get("name").getAsString();
 
                 inputStream.close();
                 bufferedReader.close();
 
                 // Return UUID
                 UUID result = parseUUIDFromString(uuidAsString);
-                cache.save(result, playerName);
+                cache.save(result, retrievedName);
                 consumer.accept(result);
             } catch (IOException e) {
                 ProxyServer.getInstance().getLogger().severe("Couldn't connect to URL.");
@@ -124,8 +124,7 @@ public class CachedUUIDFetcher {
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
-                if (connection.getResponseCode() == 400) {
-                    ProxyServer.getInstance().getLogger().severe("There is no player with the UUID \"" + uuid.toString() + "\"!");
+                if (connection.getResponseCode() != 200) {
                     consumer.accept(null);
                     return;
                 }

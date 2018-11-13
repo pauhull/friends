@@ -2,6 +2,7 @@ package de.pauhull.friends.command;
 
 import de.pauhull.friends.Friends;
 import de.pauhull.friends.command.subcommand.AddSubCommand;
+import de.pauhull.friends.command.subcommand.RemoveSubCommand;
 import de.pauhull.friends.command.subcommand.SubCommand;
 import lombok.Getter;
 import net.md_5.bungee.api.CommandSender;
@@ -18,6 +19,7 @@ public class FriendCommand extends Command {
 
     static {
         subCommands.add(new AddSubCommand());
+        subCommands.add(new RemoveSubCommand());
     }
 
     public FriendCommand() {

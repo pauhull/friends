@@ -4,6 +4,7 @@ import de.pauhull.friends.command.FriendCommand;
 import de.pauhull.friends.data.FriendRequestTable;
 import de.pauhull.friends.data.mysql.Database;
 import de.pauhull.friends.data.mysql.MySQL;
+import de.pauhull.friends.listener.PostLoginListener;
 import de.pauhull.friends.util.CachedUUIDFetcher;
 import de.pauhull.friends.util.FriendThreadFactory;
 import lombok.Getter;
@@ -87,6 +88,7 @@ public class Friends extends Plugin {
         this.friendRequestTable = new FriendRequestTable(database, executorService);
 
         FriendCommand.register();
+        PostLoginListener.register();
     }
 
     @Override

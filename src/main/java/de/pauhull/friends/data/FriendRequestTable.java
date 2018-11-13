@@ -51,6 +51,24 @@ public class FriendRequestTable {
         // TODO
     }
 
+    public void getOpenFriendRequests(UUID to, Consumer<Integer> consumer) {
+        executorService.execute(() -> {
+            try {
+
+                ResultSet result = database.querySQL(String.format("SELECT * FROM `%s` WHERE `to`='%s'", table, to.toString()));
+
+                int results = 0;
+                while (result.next())
+                    results++;
+
+                consumer.accept(results);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                consumer.accept(0);
+            }
+        });
+    }
+
     public void sendFriendRequest(UUID from, UUID to) {
         getTime(from, to, time -> {
             try {
