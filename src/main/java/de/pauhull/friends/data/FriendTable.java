@@ -65,6 +65,11 @@ public class FriendTable {
         executorService.execute(() -> {
             try {
 
+                if (a.equals(b)) {
+                    consumer.accept(false);
+                    return;
+                }
+
                 ResultSet result = database.querySQL(String.format("SELECT * FROM `%s` WHERE (`a`='%s' OR `b`='%s') AND (`a`='%s' OR `b`='%s')",
                         table, a.toString(), a.toString(), b.toString(), b.toString()));
 

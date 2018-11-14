@@ -8,7 +8,8 @@ public class MessageManager {
 
     @Getter
     private String prefix, requestReceived, onlyPlayers, playerDoesntExist, alreadyRequested, requestSent, requestWithdrawn,
-            openRequests, youAccepted, youDenied, requestAccepted, requestDenied, noRequest, alreadyFriend, noFriend, friendRemoved;
+            openRequests, youAccepted, youDenied, requestAccepted, requestDenied, noRequest, alreadyFriend, noFriend, friendRemoved,
+            notSelf, noRequests, requestsAccepted, requestsDenied, noPermissions, notOnline, noMessages;
 
     public MessageManager load(Configuration config) {
         this.prefix = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.Prefix"));
@@ -27,6 +28,13 @@ public class MessageManager {
         this.alreadyFriend = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.AlreadyFriend"));
         this.noFriend = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.NoFriend"));
         this.friendRemoved = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.FriendRemoved"));
+        this.notSelf = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.NotSelf"));
+        this.noRequests = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.NoRequests"));
+        this.requestsAccepted = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.RequestsAccepted"));
+        this.requestsDenied = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.RequestsDenied"));
+        this.noPermissions = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.NoPermissions"));
+        this.notOnline = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.NotOnline"));
+        this.noMessages = ChatColor.translateAlternateColorCodes('&', config.getString("Messages.NoMessages"));
         return this;
     }
 

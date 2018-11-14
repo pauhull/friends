@@ -151,4 +151,15 @@ public class CachedUUIDFetcher {
         });
     }
 
+    public void getNameCaseSensitive(String name, Consumer<String> consumer) {
+        fetchUUIDAsync(name, uuid -> {
+            if (uuid == null) {
+                consumer.accept(null);
+                return;
+            }
+
+            fetchNameAsync(uuid, consumer);
+        });
+    }
+
 }

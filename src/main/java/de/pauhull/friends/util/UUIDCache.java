@@ -1,56 +1,34 @@
 package de.pauhull.friends.util;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class UUIDCache {
 
-    private Map<UUID, Map.Entry<String, Long>> nameCache = new HashMap<>();
-    private Map<String, Map.Entry<UUID, Long>> uuidCache = new HashMap<>();
-    private int saveTimeMillis;
+    private Map<UUID, String> nameCache;
+    private Map<String, UUID> uuidCache;
 
-    public UUIDCache(int saveTimeMillis) {
-        this.saveTimeMillis = saveTimeMillis;
+    public UUIDCache(TimeUnit unit, long cacheTime) {
+        this.nameCache = new TimedHashMap<>(unit, cacheTime);
+        this.uuidCache = new TimedHashMap<>(unit, cacheTime);
     }
 
     public UUIDCache() {
-        this(1000 * 60 * 60 * 12); // 12 hours
+        this(TimeUnit.HOURS, 12);
     }
 
     public void save(UUID uuid, String name) {
-        long time = System.currentTimeMillis();
-        nameCache.put(uuid, new AbstractMap.SimpleEntry<>(name, time));
-        uuidCache.put(name, new AbstractMap.SimpleEntry<>(uuid, time));
+        nameCache.put(uuid, name);
+        uuidCache.put(name, uuid);
     }
 
     public UUID getUUID(String name) {
-        if (!uuidCache.containsKey(name))
-            return null;
-
-        Map.Entry<UUID, Long> cacheEntry = uuidCache.get(name);
-
-        if (System.currentTimeMillis() - cacheEntry.getValue() > saveTimeMillis) {
-            uuidCache.remove(name);
-            return null;
-        }
-
-        return cacheEntry.getKey();
+        return uuidCache.get(name);
     }
 
     public String getName(UUID uuid) {
-        if (!nameCache.containsKey(uuid))
-            return null;
-
-        Map.Entry<String, Long> cacheEntry = nameCache.get(uuid);
-
-        if (System.currentTimeMillis() - cacheEntry.getValue() > saveTimeMillis) {
-            nameCache.remove(uuid);
-            return null;
-        }
-
-        return cacheEntry.getKey();
+        return nameCache.get(uuid);
     }
 
 }

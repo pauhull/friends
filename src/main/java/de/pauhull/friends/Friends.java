@@ -1,6 +1,8 @@
 package de.pauhull.friends;
 
 import de.pauhull.friends.command.FriendCommand;
+import de.pauhull.friends.command.MsgCommand;
+import de.pauhull.friends.command.ReplyCommand;
 import de.pauhull.friends.data.FriendRequestTable;
 import de.pauhull.friends.data.FriendTable;
 import de.pauhull.friends.data.mysql.Database;
@@ -24,10 +26,23 @@ import java.util.concurrent.Executors;
 
 public class Friends extends Plugin {
 
-    //TODO no self request
-    //TODO no request if already friends
-    //TODO permissions
     //TODO reload
+    //TODO friend msg /r
+    //TODO friend togglemsg
+    //TODO friend jump
+    //TODO friend togglejump
+    //TODO last online message
+    //TODO status (standard: ich liebe novusmc) (premium)
+    //TODO öffentliche parties (premium)
+    //TODO friend remove all
+    //TODO friend accept all
+    //TODO friend deny all
+    //TODO join nachricht: alle annehmen/ablehnen
+    //TODO online/offline nachrichten
+    //TODO togglenotify
+    //TODO friend list
+    //TODO /friend help
+    //TODO friend block
 
     @Getter
     private static Friends instance;
@@ -72,25 +87,15 @@ public class Friends extends Plugin {
     public void onEnable() {
         instance = this;
 
-        this.configFile = new File(getDataFolder(), "config.yml");
-        this.messageFile = new File(getDataFolder(), "messages.yml");
-        this.config = copyAndLoad("config.yml", configFile);
-        this.messageConfig = copyAndLoad("messages.yml", messageFile);
+        this.reload();
         this.executorService = Executors.newSingleThreadExecutor(new FriendThreadFactory());
-        this.messages = new MessageManager().load(this.messageConfig);
         prefix = messages.getPrefix();
         this.uuidFetcher = new CachedUUIDFetcher(executorService);
-        this.tablePrefix = config.getString("Database.TablePrefix");
-        this.database = new MySQL(config.getString("Database.MySQL.Host"),
-                config.getString("Database.MySQL.Port"),
-                config.getString("Database.MySQL.Database"),
-                config.getString("Database.MySQL.User"),
-                config.getString("Database.MySQL.Password"));
 
         try {
             this.database.openConnection();
         } catch (SQLException e) {
-            ProxyServer.getInstance().getLogger().severe("Couldn't connect to MySQL! Shutting down...");
+            ProxyServer.getInstance().getLogger().severe("[Friends] Couldn't connect to MySQL!");
             return;
         }
 
@@ -98,6 +103,8 @@ public class Friends extends Plugin {
         this.friendTable = new FriendTable(database, executorService);
 
         FriendCommand.register();
+        MsgCommand.register();
+        ReplyCommand.register();
         PostLoginListener.register();
     }
 
@@ -130,6 +137,28 @@ public class Friends extends Plugin {
         }
 
         return null;
+    }
+
+    public void reload() {
+        this.configFile = new File(getDataFolder(), "config.yml");
+        this.messageFile = new File(getDataFolder(), "messages.yml");
+        this.config = copyAndLoad("config.yml", configFile);
+        this.messageConfig = copyAndLoad("messages.yml", messageFile);
+        this.messages = new MessageManager().load(this.messageConfig);
+        this.tablePrefix = config.getString("Database.TablePrefix");
+        this.database = new MySQL(config.getString("Database.MySQL.Host"),
+                config.getString("Database.MySQL.Port"),
+                config.getString("Database.MySQL.Database"),
+                config.getString("Database.MySQL.User"),
+                config.getString("Database.MySQL.Password"));
+
+        try {
+            this.database.closeConnection();
+            this.database.openConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }
