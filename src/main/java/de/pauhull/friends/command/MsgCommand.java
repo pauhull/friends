@@ -1,5 +1,6 @@
 package de.pauhull.friends.command;
 
+import com.google.common.collect.ImmutableSet;
 import de.pauhull.friends.Friends;
 import de.pauhull.friends.util.Permissions;
 import de.pauhull.friends.util.TimedHashMap;
@@ -9,11 +10,14 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class MsgCommand extends Command {
+public class MsgCommand extends Command implements TabExecutor {
 
     public static Map<String, String> lastMessageReceivedBy = new TimedHashMap<>(TimeUnit.MINUTES, 15);
 
@@ -50,48 +54,84 @@ public class MsgCommand extends Command {
 
         String sendTo = args[0];
 
-        friends.getUuidFetcher().fetchUUIDAsync(sendTo, uuid -> {
+        friends.getSettingsTable().getMessages(player.getUniqueId(), sendMessages -> {
 
-            if (uuid == null) {
-                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getPlayerDoesntExist()));
-            } else {
-                ProxiedPlayer receiver = ProxyServer.getInstance().getPlayer(uuid);
-                if (receiver == null) {
-                    friends.getUuidFetcher().fetchNameAsync(uuid, name -> {
-                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNotOnline(), name)));
-                    });
-                    return;
-                }
+            if (sendMessages) {
 
-                friends.getFriendTable().areFriends(player.getUniqueId(), receiver.getUniqueId(), areFriends -> {
-                    if (areFriends) {
+                friends.getUuidFetcher().fetchUUIDAsync(sendTo, uuid -> {
 
-                        StringBuilder message = new StringBuilder();
-                        for (int i = 1; i < args.length; i++) {
-                            if (i > 1) {
-                                message.append(" ");
-                            }
+                    if (uuid == null) {
+                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getPlayerDoesntExist()));
+                    } else {
 
-                            message.append(args[i]);
+                        ProxiedPlayer receiver = ProxyServer.getInstance().getPlayer(uuid);
+                        if (receiver == null) {
+                            friends.getUuidFetcher().fetchNameAsync(uuid, name -> {
+                                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNotOnline(), name)));
+                            });
+                            return;
                         }
 
-                        BaseComponent[] msg = TextComponent.fromLegacyText(String.format("§7%s » %s: %s", player.getName(), receiver.getName(), message));
-                        player.sendMessage(msg);
-                        receiver.sendMessage(msg);
+                        friends.getSettingsTable().getMessages(uuid, messages -> {
 
-                        MsgCommand.lastMessageReceivedBy.put(receiver.getName(), player.getName());
-                        MsgCommand.lastMessageReceivedBy.put(player.getName(), receiver.getName());
+                            if (messages) {
+                                friends.getFriendTable().areFriends(player.getUniqueId(), receiver.getUniqueId(), areFriends -> {
+                                    if (areFriends) {
 
-                    } else {
-                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNoFriend(), receiver.getName())));
+                                        StringBuilder message = new StringBuilder();
+                                        for (int i = 1; i < args.length; i++) {
+                                            if (i > 1) {
+                                                message.append(" ");
+                                            }
+
+                                            message.append(args[i]);
+                                        }
+
+                                        BaseComponent[] msg = TextComponent.fromLegacyText(String.format("§7%s » %s: %s", player.getName(), receiver.getName(), message));
+                                        player.sendMessage(msg);
+                                        receiver.sendMessage(msg);
+
+                                        MsgCommand.lastMessageReceivedBy.put(receiver.getName(), player.getName());
+                                        MsgCommand.lastMessageReceivedBy.put(player.getName(), receiver.getName());
+
+                                    } else {
+                                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNoFriend(), receiver.getName())));
+                                    }
+                                });
+                            } else {
+                                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getMessagesDisabled(), receiver.getName())));
+                            }
+
+                        });
+
                     }
+
                 });
+
+            } else {
+                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getMessagesDisabledSelf()));
             }
 
         });
 
-        //TODO: tab complete
+    }
 
+    @Override
+    public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
+        if (args.length != 1 || !sender.hasPermission(Permissions.MSG)) {
+            return ImmutableSet.of();
+        }
+
+        String search = args[0].toLowerCase();
+        Set<String> matches = new HashSet<>();
+
+        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+            if (player.getName().toLowerCase().startsWith(search)) {
+                matches.add(player.getName());
+            }
+        }
+
+        return matches;
     }
 
 }

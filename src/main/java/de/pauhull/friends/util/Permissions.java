@@ -10,5 +10,7 @@ public class Permissions {
     public static final String ADD = "friends.add";
     public static final String MSG = "friends.msg";
     public static final String RELOAD = "friends.reload";
+    public static final String TOGGLE = "friends.toggle";
+    public static final String JUMP = "friends.jump";
 
 }

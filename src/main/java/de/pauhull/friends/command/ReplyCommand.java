@@ -42,40 +42,60 @@ public class ReplyCommand extends Command {
             return;
         }
 
-        if (MsgCommand.lastMessageReceivedBy.containsKey(player.getName())) {
-            String sendTo = MsgCommand.lastMessageReceivedBy.get(player.getName());
+        friends.getSettingsTable().getMessages(player.getUniqueId(), sendMessages -> {
 
-            ProxiedPlayer receiver = ProxyServer.getInstance().getPlayer(sendTo);
-            if (receiver == null) {
-                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNotOnline(), sendTo)));
-            } else {
-                friends.getFriendTable().areFriends(player.getUniqueId(), receiver.getUniqueId(), areFriends -> {
-                    if (areFriends) {
+            if (sendMessages) {
 
-                        StringBuilder message = new StringBuilder();
-                        for (int i = 0; i < args.length; i++) {
-                            if (i > 0) {
-                                message.append(" ");
-                            }
+                if (MsgCommand.lastMessageReceivedBy.containsKey(player.getName())) {
+                    String sendTo = MsgCommand.lastMessageReceivedBy.get(player.getName());
 
-                            message.append(args[i]);
-                        }
-
-                        BaseComponent[] msg = TextComponent.fromLegacyText(String.format("§7%s » %s: %s", player.getName(), receiver.getName(), message));
-                        player.sendMessage(msg);
-                        receiver.sendMessage(msg);
-
-                        MsgCommand.lastMessageReceivedBy.put(receiver.getName(), player.getName());
-                        MsgCommand.lastMessageReceivedBy.put(player.getName(), receiver.getName());
-
+                    ProxiedPlayer receiver = ProxyServer.getInstance().getPlayer(sendTo);
+                    if (receiver == null) {
+                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNotOnline(), sendTo)));
                     } else {
-                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNoFriend(), receiver.getName())));
+                        friends.getFriendTable().areFriends(player.getUniqueId(), receiver.getUniqueId(), areFriends -> {
+                            if (areFriends) {
+
+                                friends.getSettingsTable().getMessages(receiver.getUniqueId(), receivesMessages -> {
+
+                                    if (receivesMessages) {
+
+                                        StringBuilder message = new StringBuilder();
+                                        for (int i = 0; i < args.length; i++) {
+                                            if (i > 0) {
+                                                message.append(" ");
+                                            }
+
+                                            message.append(args[i]);
+                                        }
+
+                                        BaseComponent[] msg = TextComponent.fromLegacyText(String.format("§7%s » %s: %s", player.getName(), receiver.getName(), message));
+                                        player.sendMessage(msg);
+                                        receiver.sendMessage(msg);
+
+                                        MsgCommand.lastMessageReceivedBy.put(receiver.getName(), player.getName());
+                                        MsgCommand.lastMessageReceivedBy.put(player.getName(), receiver.getName());
+
+                                    } else {
+                                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getMessagesDisabled(), receiver.getName())));
+                                    }
+
+                                });
+
+                            } else {
+                                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNoFriend(), receiver.getName())));
+                            }
+                        });
                     }
-                });
+                } else {
+                    player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getNoMessages()));
+                }
+
+            } else {
+                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getMessagesDisabledSelf()));
             }
-        } else {
-            player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getNoMessages()));
-        }
+
+        });
 
     }
 

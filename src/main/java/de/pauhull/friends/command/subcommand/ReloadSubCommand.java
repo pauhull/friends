@@ -24,6 +24,7 @@ public class ReloadSubCommand extends SubCommand {
         }
 
         friends.reload();
+        friends.reloadDatabase();
 
         sender.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + "Config reloaded"));
 

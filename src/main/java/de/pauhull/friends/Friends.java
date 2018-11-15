@@ -5,8 +5,10 @@ import de.pauhull.friends.command.MsgCommand;
 import de.pauhull.friends.command.ReplyCommand;
 import de.pauhull.friends.data.FriendRequestTable;
 import de.pauhull.friends.data.FriendTable;
+import de.pauhull.friends.data.SettingsTable;
 import de.pauhull.friends.data.mysql.Database;
 import de.pauhull.friends.data.mysql.MySQL;
+import de.pauhull.friends.listener.PlayerDisconnectListener;
 import de.pauhull.friends.listener.PostLoginListener;
 import de.pauhull.friends.util.CachedUUIDFetcher;
 import de.pauhull.friends.util.FriendThreadFactory;
@@ -26,21 +28,13 @@ import java.util.concurrent.Executors;
 
 public class Friends extends Plugin {
 
-    //TODO reload
-    //TODO friend msg /r
-    //TODO friend togglemsg
     //TODO friend jump
-    //TODO friend togglejump
     //TODO last online message
     //TODO status (standard: ich liebe novusmc) (premium)
     //TODO öffentliche parties (premium)
-    //TODO friend remove all
-    //TODO friend accept all
-    //TODO friend deny all
     //TODO join nachricht: alle annehmen/ablehnen
-    //TODO online/offline nachrichten
-    //TODO togglenotify
     //TODO friend list
+    //TODO friend toggle requests
     //TODO /friend help
     //TODO friend block
 
@@ -83,6 +77,9 @@ public class Friends extends Plugin {
     @Getter
     private FriendTable friendTable;
 
+    @Getter
+    private SettingsTable settingsTable;
+
     @Override
     public void onEnable() {
         instance = this;
@@ -91,6 +88,9 @@ public class Friends extends Plugin {
         this.executorService = Executors.newSingleThreadExecutor(new FriendThreadFactory());
         prefix = messages.getPrefix();
         this.uuidFetcher = new CachedUUIDFetcher(executorService);
+
+        FriendCommand.register();
+        FriendCommand.registerReload();
 
         try {
             this.database.openConnection();
@@ -101,9 +101,10 @@ public class Friends extends Plugin {
 
         this.friendRequestTable = new FriendRequestTable(database, executorService);
         this.friendTable = new FriendTable(database, executorService);
+        this.settingsTable = new SettingsTable(database, executorService);
 
-        FriendCommand.register();
         MsgCommand.register();
+        PlayerDisconnectListener.register();
         ReplyCommand.register();
         PostLoginListener.register();
     }
@@ -151,14 +152,33 @@ public class Friends extends Plugin {
                 config.getString("Database.MySQL.Database"),
                 config.getString("Database.MySQL.User"),
                 config.getString("Database.MySQL.Password"));
+    }
 
+    public void reloadDatabase() {
         try {
-            this.database.closeConnection();
+            if (this.database != null && this.database.isConnected()) {
+                this.database.closeConnection();
+            }
+
             this.database.openConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+        try {
+            if ((database != null && database.isConnected()) && (this.friendRequestTable == null || this.friendTable == null || this.settingsTable == null)) {
+                this.friendRequestTable = new FriendRequestTable(database, executorService);
+                this.friendTable = new FriendTable(database, executorService);
+                this.settingsTable = new SettingsTable(database, executorService);
+
+                MsgCommand.register();
+                PlayerDisconnectListener.register();
+                ReplyCommand.register();
+                PostLoginListener.register();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

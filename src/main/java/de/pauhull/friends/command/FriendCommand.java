@@ -19,14 +19,14 @@ public class FriendCommand extends Command implements TabExecutor {
     private static List<SubCommand> subCommands = new ArrayList<>();
 
     static {
+        subCommands.add(new AcceptDenySubCommand());
         subCommands.add(new AddSubCommand());
         subCommands.add(new RemoveSubCommand());
-        subCommands.add(new AcceptDenySubCommand());
-        subCommands.add(new ReloadSubCommand());
+        subCommands.add(new ToggleSubCommand());
+        subCommands.add(new JumpSubCommand());
     }
 
     //private Friends friends;
-
     public FriendCommand(Friends friends) {
         super("friend");
         //this.friends = friends;
@@ -37,8 +37,13 @@ public class FriendCommand extends Command implements TabExecutor {
         new FriendCommand(Friends.getInstance());
     }
 
+    public static void registerReload() {
+        subCommands.add(new ReloadSubCommand());
+    }
+
     @Override
     public void execute(CommandSender sender, String[] args) {
+
         if (args.length > 0) {
             for (SubCommand command : subCommands) {
                 for (String name : command.getNames()) {
