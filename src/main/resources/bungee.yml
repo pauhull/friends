@@ -1,4 +1,4 @@
 name: friends
-main: de.pauhull.friends.Friends
+main: de.pauhull.friends.bungee.Friends
 version: 1.0
 author: pauhull
