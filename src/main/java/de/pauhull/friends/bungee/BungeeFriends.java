@@ -27,12 +27,12 @@ import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Friends extends Plugin {
+public class BungeeFriends extends Plugin {
 
     //TODO öffentliche parties (premium)
 
     @Getter
-    private static Friends instance;
+    private static BungeeFriends instance;
 
     @Getter
     private static String prefix;

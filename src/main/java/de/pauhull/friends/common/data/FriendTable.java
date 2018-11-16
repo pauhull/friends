@@ -81,4 +81,29 @@ public class FriendTable {
         });
     }
 
+    public void getTime(UUID a, UUID b, Consumer<Long> consumer) {
+        executorService.execute(() -> {
+            try {
+
+                if (a.equals(b)) {
+                    consumer.accept(null);
+                }
+
+                ResultSet result = database.querySQL(String.format("SELECT * FROM `%s` WHERE (`a`='%s' OR `b`='%s') AND (`a`='%s' OR `b`='%s')",
+                        table, a.toString(), a.toString(), b.toString(), b.toString()));
+
+                if (result.next()) {
+                    consumer.accept(result.getLong("time"));
+                    return;
+                }
+
+                consumer.accept(null);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                consumer.accept(null);
+            }
+        });
+    }
+
 }

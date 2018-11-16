@@ -1,6 +1,6 @@
 package de.pauhull.friends.bungee.command;
 
-import de.pauhull.friends.bungee.Friends;
+import de.pauhull.friends.bungee.BungeeFriends;
 import de.pauhull.friends.common.util.Permissions;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -11,34 +11,34 @@ import net.md_5.bungee.api.plugin.Command;
 
 public class ReplyCommand extends Command {
 
-    private Friends friends;
+    private BungeeFriends friends;
 
-    public ReplyCommand(Friends friends) {
+    public ReplyCommand(BungeeFriends friends) {
         super("r", null, "reply");
         this.friends = friends;
         friends.getProxy().getPluginManager().registerCommand(friends, this);
     }
 
     public static void register() {
-        new ReplyCommand(Friends.getInstance());
+        new ReplyCommand(BungeeFriends.getInstance());
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
 
         if (!(sender instanceof ProxiedPlayer)) {
-            sender.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getOnlyPlayers()));
+            sender.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getOnlyPlayers()));
             return;
         }
         ProxiedPlayer player = (ProxiedPlayer) sender;
 
         if (!player.hasPermission(Permissions.MSG)) {
-            player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getNoPermissions()));
+            player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getNoPermissions()));
             return;
         }
 
         if (args.length < 1) {
-            sender.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + "§c/r <Nachricht...>"));
+            sender.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + "§c/r <Nachricht...>"));
             return;
         }
 
@@ -51,7 +51,7 @@ public class ReplyCommand extends Command {
 
                     ProxiedPlayer receiver = ProxyServer.getInstance().getPlayer(sendTo);
                     if (receiver == null) {
-                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNotOnline(), sendTo)));
+                        player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getNotOnline(), sendTo)));
                     } else {
                         friends.getFriendTable().areFriends(player.getUniqueId(), receiver.getUniqueId(), areFriends -> {
                             if (areFriends) {
@@ -77,22 +77,22 @@ public class ReplyCommand extends Command {
                                         MsgCommand.lastMessageReceivedBy.put(player.getName(), receiver.getName());
 
                                     } else {
-                                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getMessagesDisabled(), receiver.getName())));
+                                        player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getMessagesDisabled(), receiver.getName())));
                                     }
 
                                 });
 
                             } else {
-                                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNoFriend(), receiver.getName())));
+                                player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getNoFriend(), receiver.getName())));
                             }
                         });
                     }
                 } else {
-                    player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getNoMessages()));
+                    player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getNoMessages()));
                 }
 
             } else {
-                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getMessagesDisabledSelf()));
+                player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getMessagesDisabledSelf()));
             }
 
         });

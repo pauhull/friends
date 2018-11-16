@@ -1,7 +1,7 @@
 package de.pauhull.friends.bungee.command;
 
 import com.google.common.collect.ImmutableSet;
-import de.pauhull.friends.bungee.Friends;
+import de.pauhull.friends.bungee.BungeeFriends;
 import de.pauhull.friends.bungee.command.subcommand.*;
 import de.pauhull.friends.common.util.Permissions;
 import lombok.Getter;
@@ -30,15 +30,15 @@ public class FriendCommand extends Command implements TabExecutor {
         subCommands.add(new StatusSubCommand());
     }
 
-    //private Friends friends;
-    public FriendCommand(Friends friends) {
+    //private BungeeFriends friends;
+    public FriendCommand(BungeeFriends friends) {
         super("friend", null, "friends");
         //this.friends = friends;
         friends.getProxy().getPluginManager().registerCommand(friends, this);
     }
 
     public static void register() {
-        new FriendCommand(Friends.getInstance());
+        new FriendCommand(BungeeFriends.getInstance());
     }
 
     @Override

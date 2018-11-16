@@ -1,0 +1,7 @@
+name: Friends
+main: de.pauhull.friends.spigot.SpigotFriends
+version: 1.0
+author: pauhull
+
+commands:
+  test:

@@ -1,7 +1,7 @@
 package de.pauhull.friends.bungee.command;
 
 import com.google.common.collect.ImmutableSet;
-import de.pauhull.friends.bungee.Friends;
+import de.pauhull.friends.bungee.BungeeFriends;
 import de.pauhull.friends.common.util.Permissions;
 import de.pauhull.friends.common.util.TimedHashMap;
 import net.md_5.bungee.api.CommandSender;
@@ -21,34 +21,34 @@ public class MsgCommand extends Command implements TabExecutor {
 
     public static Map<String, String> lastMessageReceivedBy = new TimedHashMap<>(TimeUnit.MINUTES, 15);
 
-    private Friends friends;
+    private BungeeFriends friends;
 
-    public MsgCommand(Friends friends) {
+    public MsgCommand(BungeeFriends friends) {
         super("msg");
         this.friends = friends;
         friends.getProxy().getPluginManager().registerCommand(friends, this);
     }
 
     public static void register() {
-        new MsgCommand(Friends.getInstance());
+        new MsgCommand(BungeeFriends.getInstance());
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
 
         if (!(sender instanceof ProxiedPlayer)) {
-            sender.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getOnlyPlayers()));
+            sender.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getOnlyPlayers()));
             return;
         }
         ProxiedPlayer player = (ProxiedPlayer) sender;
 
         if (!player.hasPermission(Permissions.MSG)) {
-            player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getNoPermissions()));
+            player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getNoPermissions()));
             return;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + "§c/msg <Spieler> <Nachricht...>"));
+            sender.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + "§c/msg <Spieler> <Nachricht...>"));
             return;
         }
 
@@ -61,13 +61,13 @@ public class MsgCommand extends Command implements TabExecutor {
                 friends.getUuidFetcher().fetchUUIDAsync(sendTo, uuid -> {
 
                     if (uuid == null) {
-                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getPlayerDoesntExist()));
+                        player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getPlayerDoesntExist()));
                     } else {
 
                         ProxiedPlayer receiver = ProxyServer.getInstance().getPlayer(uuid);
                         if (receiver == null) {
                             friends.getUuidFetcher().fetchNameAsync(uuid, name -> {
-                                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNotOnline(), name)));
+                                player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getNotOnline(), name)));
                             });
                             return;
                         }
@@ -95,11 +95,11 @@ public class MsgCommand extends Command implements TabExecutor {
                                         MsgCommand.lastMessageReceivedBy.put(player.getName(), receiver.getName());
 
                                     } else {
-                                        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNoFriend(), receiver.getName())));
+                                        player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getNoFriend(), receiver.getName())));
                                     }
                                 });
                             } else {
-                                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getMessagesDisabled(), receiver.getName())));
+                                player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getMessagesDisabled(), receiver.getName())));
                             }
 
                         });
@@ -109,7 +109,7 @@ public class MsgCommand extends Command implements TabExecutor {
                 });
 
             } else {
-                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getMessagesDisabledSelf()));
+                player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getMessagesDisabledSelf()));
             }
 
         });

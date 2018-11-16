@@ -1,6 +1,6 @@
 package de.pauhull.friends.bungee.command.subcommand;
 
-import de.pauhull.friends.bungee.Friends;
+import de.pauhull.friends.bungee.BungeeFriends;
 import de.pauhull.friends.common.util.Permissions;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -9,11 +9,11 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class StatusSubCommand extends SubCommand {
 
-    private Friends friends;
+    private BungeeFriends friends;
 
     public StatusSubCommand() {
         super("status");
-        this.friends = Friends.getInstance();
+        this.friends = BungeeFriends.getInstance();
         this.setTabPermissions(Permissions.STATUS);
     }
 
@@ -21,19 +21,19 @@ public class StatusSubCommand extends SubCommand {
     public void execute(CommandSender sender, String[] args) {
 
         if (!(sender instanceof ProxiedPlayer)) {
-            sender.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getOnlyPlayers()));
+            sender.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getOnlyPlayers()));
             return;
         }
         ProxiedPlayer player = (ProxiedPlayer) sender;
 
         if (!player.hasPermission(Permissions.STATUS)) {
-            player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getNoPermissions()));
+            player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getNoPermissions()));
             return;
         }
 
         if (args.length < 2) {
             friends.getSettingsTable().getStatus(player.getUniqueId(), status -> {
-                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getYourStatus(), status)));
+                player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getYourStatus(), status)));
             });
             return;
         }
@@ -48,17 +48,17 @@ public class StatusSubCommand extends SubCommand {
         String status = ChatColor.translateAlternateColorCodes('&', statusBuilder.toString());
 
         if (ChatColor.stripColor(status).length() > 20) {
-            player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getStatusTooLong()));
+            player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getStatusTooLong()));
             return;
         }
 
         if (status.contains("\\")) {
-            player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + friends.getMessages().getUnallowedCharacters()));
+            player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + friends.getMessages().getUnallowedCharacters()));
             return;
         }
 
         friends.getSettingsTable().setStatus(player.getUniqueId(), status);
-        player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getStatusChanged(), status)));
+        player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getStatusChanged(), status)));
 
     }
 

@@ -1,6 +1,6 @@
 package de.pauhull.friends.bungee.listener;
 
-import de.pauhull.friends.bungee.Friends;
+import de.pauhull.friends.bungee.BungeeFriends;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -10,15 +10,15 @@ import net.md_5.bungee.event.EventHandler;
 
 public class PostLoginListener implements Listener {
 
-    private Friends friends;
+    private BungeeFriends friends;
 
-    public PostLoginListener(Friends friends) {
+    public PostLoginListener(BungeeFriends friends) {
         this.friends = friends;
         friends.getProxy().getPluginManager().registerListener(friends, this);
     }
 
     public static void register() {
-        new PostLoginListener(Friends.getInstance());
+        new PostLoginListener(BungeeFriends.getInstance());
     }
 
     @EventHandler
@@ -42,11 +42,11 @@ public class PostLoginListener implements Listener {
                 HoverEvent acceptHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§aAlle Freundschaftsanfragen annehmen"));
                 ClickEvent acceptClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend accept all");
 
-                BaseComponent[] message = new ComponentBuilder(Friends.getPrefix()).append("§8[").append("Alle annehmen").event(acceptHover).event(acceptClick)
+                BaseComponent[] message = new ComponentBuilder(BungeeFriends.getPrefix()).append("§8[").append("Alle annehmen").event(acceptHover).event(acceptClick)
                         .color(ChatColor.GREEN).bold(true).append("§8/").append("Alle ablehnen").event(denyHover).event(denyClick).color(ChatColor.RED).bold(true)
                         .append("§8]").create();
 
-                player.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getOpenRequests(), requests)));
+                player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getOpenRequests(), requests)));
                 player.sendMessage(message);
 
             }
@@ -60,7 +60,7 @@ public class PostLoginListener implements Listener {
                     for (ProxiedPlayer friend : players) {
                         friends.getSettingsTable().getNotifications(friend.getUniqueId(), receivesNotifications -> {
                             if (receivesNotifications) {
-                                friend.sendMessage(TextComponent.fromLegacyText(Friends.getPrefix() + String.format(friends.getMessages().getNowOnline(), player.getName())));
+                                friend.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getNowOnline(), player.getName())));
                             }
                         });
                     }
