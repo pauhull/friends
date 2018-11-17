@@ -103,7 +103,4 @@ public class JumpSubCommand extends SubCommand {
         return matches;
     }
 
-
-    // TODO tab complete
-
 }

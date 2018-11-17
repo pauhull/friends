@@ -13,9 +13,25 @@
             <id>bungeecord-repo</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
+        <repository>
+            <id>wesjd-repo</id>
+            <url>https://nexus.wesjd.net/repository/thirdparty/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+
+        <dependency>
+            <groupId>net.wesjd</groupId>
+            <artifactId>anvilgui</artifactId>
+            <version>1.2.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ikeirnez</groupId>
+            <artifactId>PluginMessageFramework</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
 
         <!-- Lombok -->
         <dependency>
@@ -83,6 +99,35 @@
                 </configuration>
             </plugin>
 
+            <!-- Shade JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>true</minimizeJar>
+                            <outputDirectory>E:/Programmieren/Output/${project.artifactId}/${project.version}/
+                            </outputDirectory>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.ikeirnez.pluginmessageframework</pattern>
+                                    <shadedPattern>com.ikeirnez.pluginmessageframework</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Build Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -90,9 +135,6 @@
                 <version>3.0.2</version>
                 <configuration>
                     <outputDirectory>E:/Programmieren/Output/${project.artifactId}/${project.version}/</outputDirectory>
-                    <outputDirectory>E:/Bungee test/proxy/plugins/</outputDirectory>
-                    <outputDirectory>E:/Bungee test/server1/plugins/</outputDirectory>
-                    <outputDirectory>E:/Bungee test/server2/plugins/</outputDirectory>
                 </configuration>
             </plugin>
 

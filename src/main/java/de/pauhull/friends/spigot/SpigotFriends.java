@@ -1,15 +1,19 @@
 package de.pauhull.friends.spigot;
 
+import com.ikeirnez.pluginmessageframework.PacketManager;
+import com.ikeirnez.pluginmessageframework.implementations.BukkitPacketManager;
 import de.pauhull.friends.common.data.LastOnlineTable;
 import de.pauhull.friends.common.data.SettingsTable;
 import de.pauhull.friends.common.data.mysql.Database;
 import de.pauhull.friends.common.data.mysql.MySQL;
+import de.pauhull.friends.common.util.CachedUUIDFetcher;
 import de.pauhull.friends.common.util.FriendThreadFactory;
-import de.pauhull.friends.spigot.command.TestCommand;
+import de.pauhull.friends.spigot.data.SpigotFriendRequestTable;
 import de.pauhull.friends.spigot.data.SpigotFriendTable;
-import de.pauhull.friends.spigot.inventory.MainMenu;
+import de.pauhull.friends.spigot.inventory.*;
+import de.pauhull.friends.spigot.listener.PlayerLoginListener;
 import de.pauhull.friends.spigot.util.HeadCache;
-import de.pauhull.friends.spigot.util.SpigotUUIDFetcher;
+import de.pauhull.friends.spigot.util.IncomingPacketHandler;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -28,7 +32,19 @@ public class SpigotFriends extends JavaPlugin {
     private static SpigotFriends instance;
 
     @Getter
+    private static PlayerViewMenu playerViewMenu = null;
+
+    @Getter
     private static MainMenu mainMenu = null;
+
+    @Getter
+    private static SettingsMenu settingsMenu = null;
+
+    @Getter
+    private static FriendRequestMenu friendRequestMenu = null;
+
+    @Getter
+    private static AcceptMenu acceptMenu = null;
 
     @Getter
     private File configFile;
@@ -43,6 +59,9 @@ public class SpigotFriends extends JavaPlugin {
     private SpigotFriendTable friendTable;
 
     @Getter
+    private SpigotFriendRequestTable friendRequestTable;
+
+    @Getter
     private SettingsTable settingsTable;
 
     @Getter
@@ -52,13 +71,17 @@ public class SpigotFriends extends JavaPlugin {
     private String tablePrefix;
 
     @Getter
-    private SpigotUUIDFetcher uuidFetcher;
+    private CachedUUIDFetcher uuidFetcher;
 
     @Getter
     private HeadCache headCache;
 
     @Getter
     private LastOnlineTable lastOnlineTable;
+
+    @Getter
+    private PacketManager packetManager;
+
 
     @Override
     public void onEnable() {
@@ -72,8 +95,9 @@ public class SpigotFriends extends JavaPlugin {
                 config.getString("Database.MySQL.Port"),
                 config.getString("Database.MySQL.Database"),
                 config.getString("Database.MySQL.User"),
-                config.getString("Database.MySQL.Password"));
-        this.uuidFetcher = new SpigotUUIDFetcher(executorService);
+                config.getString("Database.MySQL.Password"),
+                config.getBoolean("Database.MySQL.SSL"));
+        this.uuidFetcher = new CachedUUIDFetcher(executorService);
         this.headCache = new HeadCache();
 
         try {
@@ -84,12 +108,21 @@ public class SpigotFriends extends JavaPlugin {
         }
 
         mainMenu = new MainMenu(this);
+        playerViewMenu = new PlayerViewMenu(this);
+        settingsMenu = new SettingsMenu(this);
+        acceptMenu = new AcceptMenu(this);
+        friendRequestMenu = new FriendRequestMenu(this);
 
         this.settingsTable = new SettingsTable(mysql, executorService, tablePrefix);
         this.friendTable = new SpigotFriendTable(mysql, executorService, tablePrefix);
         this.lastOnlineTable = new LastOnlineTable(mysql, executorService, tablePrefix);
+        this.friendRequestTable = new SpigotFriendRequestTable(mysql, executorService, tablePrefix);
+        this.packetManager = new BukkitPacketManager(this, "Friends");
+        this.packetManager.registerListener(new IncomingPacketHandler());
 
-        new TestCommand(this);
+        new PlayerLoginListener(this);
+
+        SynchronousInventoryOpener.run();
 
     }
 

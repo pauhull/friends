@@ -28,7 +28,7 @@ public class HeadCache {
         }
     }
 
-    private TimedHashMap<String, Object> heads = new TimedHashMap<>(TimeUnit.HOURS, 12);
+    private TimedHashMap<String, Object> heads = new TimedHashMap<>(TimeUnit.MINUTES, 30);
 
     public ItemStack getHead(String owner) {
         try {

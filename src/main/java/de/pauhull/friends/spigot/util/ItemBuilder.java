@@ -1,5 +1,6 @@
 package de.pauhull.friends.spigot.util;
 
+import de.pauhull.friends.spigot.SpigotFriends;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -16,10 +17,18 @@ public class ItemBuilder {
     private boolean glowing = false;
     private List<String> lore = new ArrayList<>();
     private String displayName = null;
+    private String owner = null;
     private Material material = Material.AIR;
 
     public ItemStack build() {
-        ItemStack stack = new ItemStack(material, amount, data);
+        ItemStack stack;
+
+        if (material == Material.SKULL_ITEM && data == 3 && owner != null) {
+            stack = SpigotFriends.getInstance().getHeadCache().getHead(owner);
+        } else {
+            stack = new ItemStack(material, amount, data);
+        }
+
         ItemMeta meta = stack.getItemMeta();
         meta.setLore(lore);
 
@@ -34,6 +43,13 @@ public class ItemBuilder {
 
         stack.setItemMeta(meta);
         return stack;
+    }
+
+    public ItemBuilder setHead(String owner) {
+        this.material = Material.SKULL_ITEM;
+        this.data = (short) 3;
+        this.owner = owner;
+        return this;
     }
 
     public ItemBuilder setAmount(int amount) {

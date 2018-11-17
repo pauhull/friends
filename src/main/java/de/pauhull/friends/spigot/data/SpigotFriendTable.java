@@ -22,9 +22,7 @@ public class SpigotFriendTable extends FriendTable {
 
                 String sql = String.format("SELECT * FROM `%s` WHERE `a`='%s' OR `b`='%s' ORDER BY `time` DESC LIMIT %s, %s",
                         table, uuid.toString(), uuid.toString(), Integer.toString(start), Integer.toString(results));
-                System.out.println(sql);
                 ResultSet result = database.querySQL(sql);
-                System.out.println(result.toString());
 
                 ArrayList<UUID> friends = new ArrayList<>();
                 while (result.next()) {

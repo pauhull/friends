@@ -5,7 +5,6 @@ import de.pauhull.friends.common.packet.RunCommandPacket;
 import de.pauhull.friends.spigot.SpigotFriends;
 import de.pauhull.friends.spigot.util.ItemBuilder;
 import de.pauhull.friends.spigot.util.Util;
-import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -20,35 +19,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class MainMenu implements InventoryMenu {
+public class FriendRequestMenu implements InventoryMenu {
 
-    private static final String TITLE = "§cFreunde";
-    private static final ItemStack SETTINGS = new ItemBuilder().setMaterial(Material.PAPER).setDisplayName("§8» §eEinstellungen").build();
-    private static final ItemStack REQUESTS = new ItemBuilder().setMaterial(Material.BOOK).setDisplayName("§8» §eFreundschaftsanfragen").build();
-    private static final ItemStack NO_FRIENDS = new ItemBuilder().setMaterial(Material.BARRIER).setDisplayName("§8» §cDu hast keine Freunde.").build();
+    private static final String TITLE = "§cAnfragen";
+    private static final ItemStack NO_REQUESTS = new ItemBuilder().setMaterial(Material.BARRIER).setDisplayName("§8» §cDu hast keine Freundschaftsanfragem.").build();
     private static final ItemStack GLASS_PANE = new ItemBuilder().setMaterial(Material.STAINED_GLASS_PANE).setData(15).setDisplayName(" ").build();
     private static final ItemStack NEXT_PAGE = new ItemBuilder().setMaterial(Material.ARROW).setGlowing(true).setDisplayName("§8» §eNächste Seite").build();
     private static final ItemStack PREVIOUS_PAGE = new ItemBuilder().setMaterial(Material.ARROW).setGlowing(true).setDisplayName("§8» §eVorherige Seite").build();
     private static final ItemStack NEXT_PAGE_DISABLED = new ItemBuilder().setMaterial(Material.ARROW).setDisplayName("§8» §7Keine nächste Seite").build();
     private static final ItemStack PREVIOUS_PAGE_DISABLED = new ItemBuilder().setMaterial(Material.ARROW).setDisplayName("§8» §7Keine vorherige Seite").build();
-    private static final ItemStack SEND_REQUEST = new ItemBuilder().setMaterial(Material.ANVIL).setDisplayName("§8» §eAnfrage stellen").build();
+    private static final ItemStack ACCEPT_ALL = new ItemBuilder().setMaterial(Material.EMERALD_BLOCK).setDisplayName("§8» §a§lAlle annehmen").build();
+    private static final ItemStack DENY_ALL = new ItemBuilder().setMaterial(Material.REDSTONE_BLOCK).setDisplayName("§8» §c§lAlle ablehnen").build();
+    private static final ItemStack BACK = new ItemBuilder().setMaterial(Material.STAINED_GLASS_PANE).setDisplayName("§8» §cZurück").setData(14).build();
 
     private SpigotFriends friends;
 
-    public MainMenu(SpigotFriends friends) {
+    public FriendRequestMenu(SpigotFriends friends) {
         this.friends = friends;
+
         Bukkit.getPluginManager().registerEvents(this, friends);
     }
 
     public void show(Player player, int page) {
-
         int results = 45;
         int start = page * results;
 
         friends.getUuidFetcher().fetchUUIDAsync(player.getName(), playerUUID -> {
-            friends.getFriendTable().getFriends(playerUUID, start, results, friendList -> {
+            friends.getFriendRequestTable().getFriendRequests(playerUUID, start, results, requests -> {
 
-                int inventorySize = (int) Math.floor((double) friendList.size() / 9.0 + 1.0) * 9 + 9;
+                int inventorySize = (int) Math.floor((double) requests.size() / 9.0 + 1.0) * 9 + 9;
                 if (inventorySize > 54) {
                     inventorySize = 54;
                 }
@@ -60,48 +59,31 @@ public class MainMenu implements InventoryMenu {
                 }
 
                 inventory.setItem(inventorySize - 9, page > 0 ? PREVIOUS_PAGE : PREVIOUS_PAGE_DISABLED);
-                inventory.setItem(inventorySize - 7, SEND_REQUEST);
-                inventory.setItem(inventorySize - 5, SETTINGS);
-                inventory.setItem(inventorySize - 3, REQUESTS);
-                inventory.setItem(inventorySize - 1, friendList.size() >= 45 ? NEXT_PAGE : NEXT_PAGE_DISABLED);
+                inventory.setItem(inventorySize - 7, ACCEPT_ALL);
+                inventory.setItem(inventorySize - 5, BACK);
+                inventory.setItem(inventorySize - 3, DENY_ALL);
+                inventory.setItem(inventorySize - 1, requests.size() >= 45 ? NEXT_PAGE : NEXT_PAGE_DISABLED);
 
-                if (friendList.isEmpty()) {
+                if (requests.isEmpty()) {
                     if (page == 0) {
-                        inventory.setItem(0, NO_FRIENDS);
+                        inventory.setItem(0, NO_REQUESTS);
                     }
                 } else {
-                    for (int i = 0; i < friendList.size(); i++) {
-                        UUID friendUUID = friendList.get(i);
-                        final int index = i;
-                        friends.getUuidFetcher().fetchNameAsync(friendUUID, name -> {
-                            friends.getLastOnlineTable().getLastOnline(friendUUID, lastOnline -> {
-                                friends.getFriendTable().getTime(playerUUID, friendUUID, friendTime -> {
-                                    friends.getSettingsTable().getStatus(friendUUID, status -> {
+                    int i = 0;
+                    for (UUID requesterUUID : requests.keySet()) {
+                        final int index = i++;
+                        friends.getUuidFetcher().fetchNameAsync(requesterUUID, name -> {
+                            friends.getLastOnlineTable().getLastOnline(requesterUUID, lastOnline -> {
+                                friends.getFriendTable().getTime(playerUUID, requesterUUID, friendTime -> {
+                                    friends.getSettingsTable().getStatus(requesterUUID, status -> {
 
                                         ItemStack head = friends.getHeadCache().getHead(name);
                                         ItemMeta meta = head.getItemMeta();
                                         meta.setDisplayName("§8» §a" + name);
                                         List<String> lore = new ArrayList<>();
 
-                                        lore.add("§f" + status);
-
-                                        lore.add("§8§m                   ");
-
-                                        if (Bukkit.getPlayer(name) != null) {
-                                            lore.add("§a§lONLINE");
-                                        } else {
-                                            if (lastOnline == null) {
-                                                lore.add("§8× §fLetztes Onlinedatum unbekannt");
-                                            } else {
-                                                lore.add("§8× §fZuletzt online vor " + Util.formatTime(lastOnline, System.currentTimeMillis()));
-                                            }
-                                        }
-
-                                        if (friendTime != null) {
-                                            lore.add("§8× §fBefreundet seit " + Util.formatTime(friendTime, System.currentTimeMillis()));
-                                        } else {
-                                            lore.add("§8× §fBefreundet seit: Unbekannt");
-                                        }
+                                        long time = requests.get(requesterUUID);
+                                        lore.add("§8× §fGestellt vor " + Util.formatTime(time, System.currentTimeMillis()));
 
                                         meta.setLore(lore);
                                         head.setItemMeta(meta);
@@ -119,6 +101,11 @@ public class MainMenu implements InventoryMenu {
             });
         });
 
+    }
+
+    @Override
+    public void show(Player player) {
+        this.show(player, 0);
     }
 
     @EventHandler
@@ -140,31 +127,24 @@ public class MainMenu implements InventoryMenu {
 
         if (item != null) {
             if (item.equals(NEXT_PAGE)) {
-                SpigotFriends.getMainMenu().show(player, pageIndex + 1);
+                SpigotFriends.getFriendRequestMenu().show(player, pageIndex + 1);
             } else if (item.equals(PREVIOUS_PAGE)) {
-                SpigotFriends.getMainMenu().show(player, Math.max(0, pageIndex - 1));
-            } else if (item.equals(SETTINGS)) {
-                SpigotFriends.getSettingsMenu().show(player);
-            } else if (item.equals(REQUESTS)) {
-                SpigotFriends.getFriendRequestMenu().show(player);
-            } else if (item.equals(SEND_REQUEST)) {
-                new AnvilGUI(friends, player, "", (ignored, reply) -> {
-                    friends.getPacketManager().sendPacket(new PacketPlayer(player), new RunCommandPacket("friend add " + reply));
-                    return null;
-                });
+                SpigotFriends.getFriendRequestMenu().show(player, Math.max(0, pageIndex - 1));
+            } else if (item.equals(BACK)) {
+                SpigotFriends.getMainMenu().show(player);
+            } else if (item.equals(ACCEPT_ALL)) {
+                friends.getPacketManager().sendPacket(new PacketPlayer(player), new RunCommandPacket("friend accept all"));
+                player.closeInventory();
+            } else if (item.equals(DENY_ALL)) {
+                friends.getPacketManager().sendPacket(new PacketPlayer(player), new RunCommandPacket("friend deny all"));
+                player.closeInventory();
             }
         }
 
         if (item != null && item.getType() == Material.SKULL_ITEM && item.getDurability() == 3) {
             SkullMeta meta = (SkullMeta) item.getItemMeta();
-            SpigotFriends.getPlayerViewMenu().show(player, meta.getOwner());
+            SpigotFriends.getAcceptMenu().show(player, meta.getOwner());
         }
-
-    }
-
-    @Override
-    public void show(Player player) {
-        this.show(player, 0);
     }
 
 }

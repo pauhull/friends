@@ -1,4 +1,4 @@
-package de.pauhull.friends.bungee;
+package de.pauhull.friends.bungee.util;
 
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;

@@ -60,4 +60,30 @@ public class BungeeFriendRequestTable extends FriendRequestTable {
         });
     }
 
+    public void isRequested(UUID from, UUID to, Consumer<Boolean> consumer) {
+        executorService.execute(() -> {
+            try {
+
+                ResultSet result = database.querySQL(String.format("SELECT * FROM `%s` WHERE `from`='%s' AND `to`='%s'", table, from.toString(), to.toString()));
+                consumer.accept(result.next());
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                consumer.accept(false);
+            }
+        });
+    }
+
+    public void removeRequest(UUID from, UUID to) {
+        executorService.execute(() -> {
+            try {
+
+                database.updateSQL(String.format("DELETE FROM `%s` WHERE `from`='%s' AND `to`='%s'", table, from.toString(), to.toString()));
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
 }

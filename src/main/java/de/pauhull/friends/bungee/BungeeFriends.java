@@ -1,5 +1,7 @@
 package de.pauhull.friends.bungee;
 
+import com.ikeirnez.pluginmessageframework.PacketManager;
+import com.ikeirnez.pluginmessageframework.implementations.BungeeCordPacketManager;
 import de.pauhull.friends.bungee.command.FriendCommand;
 import de.pauhull.friends.bungee.command.MsgCommand;
 import de.pauhull.friends.bungee.command.ReplyCommand;
@@ -8,6 +10,8 @@ import de.pauhull.friends.bungee.data.BungeeFriendTable;
 import de.pauhull.friends.bungee.listener.PlayerDisconnectListener;
 import de.pauhull.friends.bungee.listener.PostLoginListener;
 import de.pauhull.friends.bungee.util.BungeeUUIDFetcher;
+import de.pauhull.friends.bungee.util.IncomingPacketHandler;
+import de.pauhull.friends.bungee.util.MessageManager;
 import de.pauhull.friends.common.data.LastOnlineTable;
 import de.pauhull.friends.common.data.SettingsTable;
 import de.pauhull.friends.common.data.mysql.Database;
@@ -76,6 +80,9 @@ public class BungeeFriends extends Plugin {
     @Getter
     private LastOnlineTable lastOnlineTable;
 
+    @Getter
+    private PacketManager packetManager;
+
     @Override
     public void onEnable() {
         instance = this;
@@ -93,7 +100,8 @@ public class BungeeFriends extends Plugin {
                 config.getString("Database.MySQL.Port"),
                 config.getString("Database.MySQL.Database"),
                 config.getString("Database.MySQL.User"),
-                config.getString("Database.MySQL.Password"));
+                config.getString("Database.MySQL.Password"),
+                config.getBoolean("Database.MySQL.SSL"));
 
         try {
             this.database.openConnection();
@@ -106,6 +114,8 @@ public class BungeeFriends extends Plugin {
         this.friendTable = new BungeeFriendTable(database, executorService, tablePrefix);
         this.settingsTable = new SettingsTable(database, executorService, tablePrefix);
         this.lastOnlineTable = new LastOnlineTable(database, executorService, tablePrefix);
+        this.packetManager = new BungeeCordPacketManager(this, "Friends");
+        this.packetManager.registerListener(new IncomingPacketHandler());
 
         FriendCommand.register();
         MsgCommand.register();

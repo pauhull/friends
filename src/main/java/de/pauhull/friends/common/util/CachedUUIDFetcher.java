@@ -118,7 +118,7 @@ public class CachedUUIDFetcher {
                 // Parse JSON response and return name
                 JsonElement element = new JsonParser().parse(bufferedReader);
                 JsonArray array = element.getAsJsonArray();
-                JsonObject object = array.get(0).getAsJsonObject();
+                JsonObject object = array.get(array.size() - 1).getAsJsonObject();
 
                 bufferedReader.close();
                 inputStream.close();

@@ -66,7 +66,16 @@ public class RemoveSubCommand extends SubCommand {
                             removed.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getFriendRemoved(), player.getName())));
                         }
                     } else {
-                        player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getNoFriend(), name)));
+                        friends.getFriendRequestTable().isRequested(player.getUniqueId(), uuid, requested -> {
+
+                            if (requested) {
+                                friends.getFriendRequestTable().removeRequest(player.getUniqueId(), uuid);
+                                player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getRequestWithdrawn(), name)));
+                            } else {
+                                player.sendMessage(TextComponent.fromLegacyText(BungeeFriends.getPrefix() + String.format(friends.getMessages().getNoFriend(), name)));
+                            }
+
+                        });
                     }
                 });
 
